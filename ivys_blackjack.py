@@ -90,11 +90,9 @@ def bjdraw(x):
         playertotal += value
     if x == 'd' and value == 1:
         dealer_aces += 1
+        dealertotal += 10
     elif x == 'p' and value == 1:
         player_aces += 1
-    if dealer_aces >= 1 and dealertotal <= 11:
-        dealertotal += 10
-    if player_aces >= 1 and playertotal <= 11:
         playertotal += 10
     if dealertotal > 21 and dealer_aces >= 1:
         dealertotal -= 10
@@ -148,9 +146,6 @@ def startgame():
 
             if h_s == 'hit' or h_s == 'h':
                 draw = bjdraw('p')
-                if player_aces >= 1 and playertotal > 21:
-                    playertotal -= 10
-                    player_aces -= 1
                 print("You draw a", draw, "bringing your total to", str(playertotal) + ".")
                 print("")
         
