@@ -11,6 +11,10 @@ dealer_aces = 0
 player_aces = 0
 dealertotal = 0
 playertotal = 0
+money = 100
+bet = 0
+topscore = 100
+p_babyaces = 0
 
 def drawcard():
     global card
@@ -67,7 +71,7 @@ def carddrawslate():
 
 def bjdraw(x):
     drawncard = carddrawslate()
-    global dealertotal, playertotal, dealer_aces, player_aces, value
+    global dealertotal, playertotal, dealer_aces, player_aces, value, p_babyaces
     if x == 'd':
         dealertotal += value
     elif x == 'p':
@@ -82,11 +86,13 @@ def bjdraw(x):
     if player_aces >= 1 and playertotal <= 11:
         playertotal += 10
         player_aces -= 0
+    else:
+        p_babyaces += 1
 
     return drawncard
 runs = 0
 def startgame():
-    global game, tens, jacks, queens, kings, dealer_aces, player_aces, dealertotal, playertotal, runs
+    global game, tens, jacks, queens, kings, dealer_aces, player_aces, dealertotal, playertotal, runs, money, topscore, p_babyaces
     while game == True:
 
         tens = 4
@@ -101,7 +107,17 @@ def startgame():
         if runs == 0: 
             print("Welcome to Blackjack!")
         print("")
-        print("The dealer draws a", (bjdraw('d')) + ".")
+        while True:
+            bet = (input(f"How much would you like to bet? ($1 - ${money}): "))
+            bet = int(bet[1:(len(bet))])
+            if bet > money: 
+                print(f"Bet cannot exceed ${money}.")
+            elif bet == 0:
+                print("Bet cannot be $0.")
+            else:
+                print(f"You bet: ${bet}.")
+                break
+        print("The dealer draws a", (bjdraw('d')), f"for a total of {dealertotal}.")
         print("")
         print("You draw a", bjdraw('p'), "and a", bjdraw('p'), "totalling", str(playertotal) + ".")
         print("")
@@ -112,20 +128,29 @@ def startgame():
             print("Do you hit or stand?")
             h_s = input("(hit/stand): ").lower()
             print("")
-            if h_s != "hit" and h_s != "stand":
+            if h_s != "hit" and h_s != "stand" and h_s != "h" and h_s != "s":
                 print("Unknown input; please try again.")
                 continue
 
             if h_s == 'hit' or h_s == 'h':
-                print("You draw a", bjdraw('p'), "bringing your total to", str(playertotal) + ".")
+                draw = bjdraw('p')
+                if player_aces >= 1:
+                    temptotal = playertotal
+                    if temptotal > 21:
+                        playertotal -= (player_aces - p_babyaces) * 10
+                        player_aces -= 1
+                print("You draw a", draw, "bringing your total to", str(playertotal) + ".")
                 print("")
+        
             if playertotal > 21 and player_aces == 0:
                 print("You busted!")
                 print("")
+                money -= bet
+                if money > topscore: topscore = money
+                print(f"You have ${money} remaining.")
                 game = False
                 break
-            elif playertotal > 21 and player_aces >= 1:
-                playertotal -= 10 * player_aces
+            
             elif h_s == 'stand' or h_s == 's':
                 while dealertotal <= 17:
                     print("The dealer draws a", bjdraw('d'), "bringing their total to", str(dealertotal) + ".")
@@ -133,33 +158,65 @@ def startgame():
                 if dealertotal > 21:
                     print("The dealer busted! You win!")
                     print("")
+                    money += bet
+                    if money > topscore: topscore = money
+                    print(f"You have ${money} remaining.")
                     game = False
+
                 elif dealertotal > playertotal:
                     print("You lose!")
                     print("")
+                    money -= bet
+                    if money > topscore: topscore = money
+                    print(f"You have ${money} remaining.")
                     game = False
+
                 elif dealertotal < playertotal:
                     print("You win!")
                     print("")
+                    money += bet
+                    if money > topscore: topscore = money
+                    print(f"You have ${money} remaining.")
                     game = False
+
                 elif dealertotal == playertotal:
                     print("The game tied!")
                     print("")
+                    print(f"You have ${money} remaining.")
+                    if money > topscore: topscore = money
                     game = False
+
                 break
-
+# game init
 startgame()
-
+# post game end
 while True and game == False:
-    replay = input("Do you want to play again? (y/n): ").lower()
-    if replay == 'y':
-        game = True
-        runs += 1
-        print("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
-        startgame()
-    elif replay == 'n':
-        exit()
-        break
+    print(f"Your high score is ${topscore}.")
+    # check if broke
+    if money == 0:
+        refill = input("You're broke! Do you want to get more money and keep going? (y/n): ").lower()
+        if refill == "y":
+            money += 100
+            game = True
+            runs +=1
+            print("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+            startgame()
+        elif refill == "n":
+            quit()
+            break
+        else:
+            print("Unknown input, please try again.")
+            print("")   
     else:
-        print("Unknown input, please try again.")
-        print("")
+        replay = input("Do you want to play again? (y/n): ").lower()
+        if replay == 'y':
+            game = True
+            runs += 1
+            print("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+            startgame()
+        elif replay == 'n':
+            quit()
+            break
+        else:
+            print("Unknown input, please try again.")
+            print("")
