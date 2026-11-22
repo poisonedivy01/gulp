@@ -120,8 +120,11 @@ def startgame():
             print("Welcome to Blackjack!")
         print("")
         while True:
-            bet = (input(f"How much would you like to bet? ($1 - ${money}): "))
-            bet = int(bet[1:(len(bet))])
+            bet = (input(f"How much would you like to bet? ($1 - ${money}): ")).lower()
+            if bet == 'all in' or bet == 'a' or bet == 'all' or bet == 'allin':
+                bet = money
+            else:
+                bet = int(bet[1:(len(bet))])
             if bet > money: 
                 print(f"Bet cannot exceed ${money}.")
             elif bet == 0:
