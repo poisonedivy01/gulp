@@ -14,13 +14,25 @@ playertotal = 0
 money = 100
 bet = 0
 topscore = 100
-p_babyaces = 0
 
 def drawcard():
     global card
     card = random.choice(full_deck)
     full_deck.remove(card)
     return card
+
+def reset():
+    global full_deck, tens, queens, jacks, kings, dealer_aces, dealertotal, player_aces, playertotal
+    
+    full_deck = ['1s', '1c', '1d', '1h', '2s', '2c', '2d', '2h', '3s', '3c', '3d', '3h', '4s', '4c', '4d', '4h', '5s', '5c', '5d', '5h','6s', '6c', '6d', '6h', '7s', '7c', '7d', '7h', '8s', '8c', '8d', '8h', '9s', '9c', '9d', '9h', '0s', '0c', '0d', '0h', '0s', '0c', '0d', '0h', '0s', '0c', '0d', '0h', '0s', '0c', '0d', '0h']
+    tens = 4
+    jacks = 4
+    queens = 4
+    kings = 4
+    dealer_aces = 0
+    player_aces = 0
+    dealertotal = 0
+    playertotal = 0
 
 def carddrawslate():
     global kings, queens, tens, jacks
@@ -71,7 +83,7 @@ def carddrawslate():
 
 def bjdraw(x):
     drawncard = carddrawslate()
-    global dealertotal, playertotal, dealer_aces, player_aces, value, p_babyaces
+    global dealertotal, playertotal, dealer_aces, player_aces, value
     if x == 'd':
         dealertotal += value
     elif x == 'p':
@@ -82,17 +94,19 @@ def bjdraw(x):
         player_aces += 1
     if dealer_aces >= 1 and dealertotal <= 11:
         dealertotal += 10
-        dealer_aces -= 0
     if player_aces >= 1 and playertotal <= 11:
         playertotal += 10
-        player_aces -= 0
-    else:
-        p_babyaces += 1
+    if dealertotal > 21 and dealer_aces >= 1:
+        dealertotal -= 10
+        dealer_aces -= 1
+    if playertotal > 21 and player_aces >= 1:
+        playertotal -= 10
+        player_aces -= 1
 
     return drawncard
 runs = 0
 def startgame():
-    global game, tens, jacks, queens, kings, dealer_aces, player_aces, dealertotal, playertotal, runs, money, topscore, p_babyaces
+    global game, tens, jacks, queens, kings, dealer_aces, player_aces, dealertotal, playertotal, runs, money, topscore
     while game == True:
 
         tens = 4
@@ -134,11 +148,9 @@ def startgame():
 
             if h_s == 'hit' or h_s == 'h':
                 draw = bjdraw('p')
-                if player_aces >= 1:
-                    temptotal = playertotal
-                    if temptotal > 21:
-                        playertotal -= (player_aces - p_babyaces) * 10
-                        player_aces -= 1
+                if player_aces >= 1 and playertotal > 21:
+                    playertotal -= 10
+                    player_aces -= 1
                 print("You draw a", draw, "bringing your total to", str(playertotal) + ".")
                 print("")
         
@@ -201,6 +213,7 @@ while True and game == False:
             runs +=1
             print("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
             startgame()
+            reset()
         elif refill == "n":
             quit()
             break
@@ -214,6 +227,7 @@ while True and game == False:
             runs += 1
             print("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
             startgame()
+            reset()
         elif replay == 'n':
             quit()
             break
